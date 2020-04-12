@@ -129,7 +129,7 @@ to move-thy1ps ;agent turns to a random angle then moves forward one patch
 
     if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
     if [tissue-type] of patch-ahead 1 = "alveolar-space" [
-      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= 15 and random 100 < AS-entry-threshold [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
         print("Enter alveolar space. ")
         forward 1
       ]
@@ -155,7 +155,7 @@ to move-thy1ns
 
     if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
     if [tissue-type] of patch-ahead 1 = "alveolar-space" [
-      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= 15 and random 100 < AS-entry-threshold [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
         print("Enter alveolar space. ")
         forward 1
       ]
@@ -173,7 +173,7 @@ to move-degraders
 
     if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
     if [tissue-type] of patch-ahead 1 = "alveolar-space" [
-      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= 15 and random 100 < AS-entry-threshold [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
         print("Enter alveolar space. ")
         forward 1
       ]
@@ -322,7 +322,7 @@ n-collagen-deposition
 n-collagen-deposition
 0
 2
-2.0
+1.0
 0.25
 1
 NIL
@@ -505,8 +505,23 @@ SLIDER
 AS-entry-threshold
 AS-entry-threshold
 0
+30
+15.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+389
+195
+561
+228
+AS-entry-random
+AS-entry-random
+0
 100
-30.0
+50.0
 1
 1
 NIL

@@ -2,6 +2,13 @@ breed [ thy1ps thy1p ]
 breed [ thy1ns thy1n ]
 breed [ degraders degrader ] ; degrative myofibroblasts
 
+globals [
+  num-AS-entry-thy1p
+  num-AS-entry-thy1n
+  num-AS-entry-degrader
+
+]
+
 patches-own [
  matrix
  tissue-type
@@ -18,7 +25,7 @@ end
 
 to setup-patches
   ask patches [ set pcolor white ]
-  import-pcolors "Mouse_Alveoli2.jpg"
+  import-pcolors "imgs/Mouse_Alveoli2.jpg"
   ask patches [
   set matrix  random 3 ;matrix works as a counter to detemine patch stiffness
   ]
@@ -40,8 +47,8 @@ to setup-patches
 end
 
 to setup-thy1ps             ;Thy-1 positive fibroblasts, yellow/green color
-  ;; create-thy1ps thy1ps-count
-  ;; ask thy1ps [ setxy random-xcor random-ycor ]
+
+  set num-AS-entry-thy1p 0
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -60,8 +67,8 @@ to setup-thy1ps             ;Thy-1 positive fibroblasts, yellow/green color
 end
 
 to setup-thy1ns             ;Thy-1 negative fibroblasts, blue
-  ;; create-thy1ns thy1ns-count
-  ;; ask thy1ns [ setxy random-xcor random-ycor ]
+
+  set num-AS-entry-thy1n 0
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -81,8 +88,8 @@ to setup-thy1ns             ;Thy-1 negative fibroblasts, blue
 end
 
 to setup-degraders
-  ;; create-degraders degrader-count
-  ;; ask degraders [ setxy random-xcor random-ycor ]
+
+  set num-AS-entry-degrader 0
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -119,13 +126,24 @@ to move-thy1ps ;agent turns to a random angle then moves forward one patch
   let alveolar-threshold 5
   ask thy1ps [
     right random 360
-    ifelse [tissue-type] of patch-ahead 1 = "interstitial" or [pcolor] of patch-ahead 1 != white [ forward 1 ]
-    [
-      if [tissue-type] of patch-ahead 1 = "alveolar-space" and [pcolor] of patch-here = 128 and random 10 <= alveolar-threshold [
+
+    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
+    if [tissue-type] of patch-ahead 1 = "alveolar-space" [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
+        print("Enter alveolar space. ")
         forward 1
-        print("Entering alveolar space. ")
       ]
+
     ]
+
+
+
+
+
+
+
+
+
   ]
 end
 
@@ -134,13 +152,16 @@ to move-thy1ns
   let alveolar-threshold 5
   ask thy1ns [
     right random 360
-    ifelse [tissue-type] of patch-ahead 1 = "interstitial" or [pcolor] of patch-ahead 1 != white [ forward 1 ]
-    [
-      if [tissue-type] of patch-ahead 1 = "alveolar-space" and [pcolor] of patch-here = 128 and random 10 <= alveolar-threshold [
+
+    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
+    if [tissue-type] of patch-ahead 1 = "alveolar-space" [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
+        print("Enter alveolar space. ")
         forward 1
-        print("Entering alveolar space. ")
       ]
+
     ]
+
   ]
 end
 
@@ -149,13 +170,16 @@ to move-degraders
   let alveolar-threshold 5
   ask degraders [
     right random 360
-    ifelse [tissue-type] of patch-ahead 1 = "interstitial" or [pcolor] of patch-ahead 1 != white [ forward 1 ]
-    [
-      if [tissue-type] of patch-ahead 1 = "alveolar-space" and [pcolor] of patch-here = 128 and random 10 <= alveolar-threshold [
+
+    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
+    if [tissue-type] of patch-ahead 1 = "alveolar-space" [
+      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
+        print("Enter alveolar space. ")
         forward 1
-        print("Entering alveolar space. ")
       ]
+
     ]
+
   ]
 end
 
@@ -193,7 +217,6 @@ to coll-degrade
   ]
 end
 
-
 to stiffen   ;patches change color and "stiffness" based on matrix value
   ask patches [
     if pcolor = 128 [   ;Become "stiff"
@@ -207,6 +230,16 @@ to stiffen   ;patches change color and "stiffness" based on matrix value
     ]
     ]
 end
+
+to-report check-alveolar-entry [ enter-AS? ]
+  ; report true
+  report false
+
+end
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 783
@@ -463,6 +496,36 @@ count degraders
 17
 1
 11
+
+SLIDER
+389
+151
+564
+184
+AS-entry-threshold
+AS-entry-threshold
+0
+30
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+389
+195
+561
+228
+AS-entry-random
+AS-entry-random
+0
+100
+90.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
