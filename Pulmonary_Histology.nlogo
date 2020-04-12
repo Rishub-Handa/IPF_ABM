@@ -122,26 +122,10 @@ to go
 end
 
 to move-thy1ps ;agent turns to a random angle then moves forward one patch
-
-  let alveolar-threshold 5
   ask thy1ps [
     right random 360
 
-    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
-    if [tissue-type] of patch-ahead 1 = "alveolar-space" [
-      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
-        print("Enter alveolar space. ")
-        forward 1
-      ]
-
-    ]
-
-
-
-
-
-
-
+    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
 
 
   ]
@@ -149,7 +133,6 @@ end
 
 to move-thy1ns
 
-  let alveolar-threshold 5
   ask thy1ns [
     right random 360
 
@@ -167,18 +150,10 @@ end
 
 to move-degraders
 
-  let alveolar-threshold 5
   ask degraders [
     right random 360
 
-    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
-    if [tissue-type] of patch-ahead 1 = "alveolar-space" [
-      if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
-        print("Enter alveolar space. ")
-        forward 1
-      ]
-
-    ]
+    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
 
   ]
 end
@@ -390,7 +365,7 @@ MONITOR
 99
 249
 Soft Patches
-count patches with [pcolor = white]
+count patches with [pcolor = white or pcolor = 95]
 17
 1
 11
@@ -418,10 +393,10 @@ count patches with [pcolor = 125]
 11
 
 PLOT
-33
-274
-328
-455
+15
+372
+310
+553
 Fibroblast Count over Time
 Time
 Number of Fibroblasts
@@ -437,10 +412,10 @@ PENS
 "Thy 1 negative" 1.0 0 -16777216 true "" "plot count thy1ns"
 
 PLOT
-382
-257
-684
-457
+390
+246
+692
+446
 Surface Stiffness over Time
 Time
 Different Stiffness Patches
@@ -506,7 +481,7 @@ AS-entry-threshold
 AS-entry-threshold
 0
 30
-5.0
+15.0
 1
 1
 NIL
@@ -521,11 +496,51 @@ AS-entry-random
 AS-entry-random
 0
 100
-90.0
+50.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+16
+315
+233
+360
+% Alveolar Patches With Collagen 
+count patches with [tissue-type = \"alveolar-space\" and pcolor != white] / count patches with [tissue-type = \"alveolar-space\"]
+17
+1
+11
+
+PLOT
+391
+461
+689
+643
+Alveolar Patches with Collagen over Time 
+Time 
+Patches 
+0.0
+1000.0
+0.0
+1000.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count patches with [tissue-type = \"alveolar-space\" and pcolor != white]"
+
+MONITOR
+17
+258
+198
+303
+Alveolar Patches with Collagen
+count patches with [tissue-type = \"alveolar-space\" and pcolor != white]
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
