@@ -252,7 +252,7 @@ thy1ps-count
 thy1ps-count
 0
 100
-10.0
+31.0
 1
 1
 NIL
@@ -267,7 +267,7 @@ thy1ns-count
 thy1ns-count
 0
 100
-10.0
+29.0
 1
 1
 NIL
@@ -440,7 +440,7 @@ degrader-count
 degrader-count
 0
 100
-80.0
+29.0
 1
 1
 NIL
@@ -481,7 +481,7 @@ AS-entry-threshold
 AS-entry-threshold
 0
 30
-15.0
+30.0
 1
 1
 NIL
@@ -496,7 +496,7 @@ AS-entry-random
 AS-entry-random
 0
 100
-50.0
+90.0
 1
 1
 NIL
@@ -1030,7 +1030,7 @@ NetLogo 6.1.1
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="AS-Entry-Bivariate" repetitions="5" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
@@ -1057,6 +1057,28 @@ NetLogo 6.1.1
       <value value="0.5"/>
     </enumeratedValueSet>
     <steppedValueSet variable="AS-entry-random" first="0" step="10" last="100"/>
+  </experiment>
+  <experiment name="Global-Sampling" repetitions="3" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
+    <enumeratedValueSet variable="collagen-degradation">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="degrader-count" first="0" step="10" last="30"/>
+    <steppedValueSet variable="thy1ps-count" first="0" step="10" last="30"/>
+    <enumeratedValueSet variable="n-collagen-deposition">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-threshold" first="0" step="6" last="30"/>
+    <steppedValueSet variable="thy1ns-count" first="0" step="10" last="30"/>
+    <enumeratedValueSet variable="p-collagen-deposition">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-random" first="0" step="25" last="100"/>
   </experiment>
 </experiments>
 @#$#@#$#@
