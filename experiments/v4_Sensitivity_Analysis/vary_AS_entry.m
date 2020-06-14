@@ -24,35 +24,71 @@ data_mat(:, 10:end) = [];
 [B, iB, iA] = unique(data_mat, 'rows');
 data_agg_biv = splitapply(@mean,data_mat_total(:,1:end),iA) 
 
-[C, idx, ic] = unique(data_mat_total(:,AS_thresh_idx)); 
+[C, icx, ic] = unique(data_mat_total(:,AS_thresh_idx)); 
 data_agg_thresh = splitapply(@mean,data_mat_total(:,1:end),ic) 
 
 [D, idx, id] = unique(data_mat_total(:,AS_rand_idx)); 
 data_agg_rand = splitapply(@mean,data_mat_total(:,1:end),id) 
+
+[E, iex, ie] = unique(data_mat_total(:,AS_thresh_idx)); 
+data_agg_thresh_std = splitapply(@std,data_mat_total(:,1:end),ie) 
+
+[F, ifx, iF] = unique(data_mat_total(:,AS_rand_idx)); 
+data_agg_rand_std = splitapply(@std,data_mat_total(:,1:end),iF) 
+
+n = size(icx, 1) 
+
+data_agg_thresh_conf = (1.96 .* data_agg_thresh_std) ./ sqrt(n); 
+data_agg_rand_conf = (1.96 .* data_agg_rand_std) ./ sqrt(n); 
+
+
+
 
 % 2D Plot 
 
 % AS-entry-threshold 
 figure(1)
 hold on 
-plot(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, AS_idx), '-bo', 'LineWidth', 2); 
-plot(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, med_idx), '-o', 'LineWidth', 2); 
-plot(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, stiff_idx), '-ro', 'LineWidth', 2); 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, AS_idx), data_agg_thresh_std(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, med_idx), data_agg_thresh_std(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, stiff_idx), data_agg_thresh_std(:, stiff_idx), '-ro', 'LineWidth', 2); 
 xlabel("Alveolar Space Threshold"); 
 ylabel("% Patches"); 
-title("% Patches with Collagen vs. AS-entry-threshold"); 
+title("% Patches with Collagen vs. AS-entry-threshold w Error Bars"); 
+legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
+hold off 
+
+figure(2)
+hold on 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, AS_idx), data_agg_thresh_conf(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, med_idx), data_agg_thresh_conf(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg_thresh(:, AS_thresh_idx), data_agg_thresh(:, stiff_idx), data_agg_thresh_conf(:, stiff_idx), '-ro', 'LineWidth', 2); 
+xlabel("Alveolar Space Threshold"); 
+ylabel("% Patches"); 
+title("% Patches with Collagen vs. AS-entry-threshold w Conf Interval"); 
 legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
 hold off 
 
 % AS-entry-random 
-figure(2)
+figure(3)
 hold on 
-plot(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, AS_idx), '-bo', 'LineWidth', 2); 
-plot(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, med_idx), '-o', 'LineWidth', 2); 
-plot(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, stiff_idx), '-ro', 'LineWidth', 2); 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, AS_idx), data_agg_rand_std(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, med_idx), data_agg_rand_std(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, stiff_idx), data_agg_rand_std(:, stiff_idx), '-ro', 'LineWidth', 2); 
 xlabel("Alveolar Space Random"); 
 ylabel("% Patches"); 
-title("% Patches with Collagen vs. AS-entry-random"); 
+title("% Patches with Collagen vs. AS-entry-random w Error Bars"); 
+legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
+hold off 
+
+figure(4)
+hold on 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, AS_idx), data_agg_rand_conf(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, med_idx), data_agg_rand_conf(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg_rand(:, AS_rand_idx), data_agg_rand(:, stiff_idx), data_agg_rand_conf(:, stiff_idx), '-ro', 'LineWidth', 2); 
+xlabel("Alveolar Space Random"); 
+ylabel("% Patches"); 
+title("% Patches with Collagen vs. AS-entry-random w Conf Interval"); 
 legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
 hold off 
 
@@ -61,7 +97,7 @@ hold off
 
 % Try surf 
 
-figure(3) 
+figure(5) 
 
 % plot3(data_agg_biv(:, AS_thresh_idx), data_agg_biv(:, AS_rand_idx), data_agg_biv(:, AS_idx), '-bo', 'LineWidth', 2); 
 subplot(2,2,1); 

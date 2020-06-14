@@ -214,7 +214,6 @@ end
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 783
@@ -481,7 +480,7 @@ AS-entry-threshold
 AS-entry-threshold
 0
 30
-15.0
+10.0
 1
 1
 NIL
@@ -496,7 +495,7 @@ AS-entry-random
 AS-entry-random
 0
 100
-50.0
+60.0
 1
 1
 NIL
@@ -940,62 +939,25 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="Vary-Thy1p" repetitions="5" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
-    <metric>count patches with [ pcolor = white ]</metric>
-    <metric>count patches with [ pcolor = 128 ]</metric>
-    <metric>count patches with [ pcolor = 125 ]</metric>
-    <enumeratedValueSet variable="n-collagen-deposition">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="thy1ps-count" first="1" step="5" last="100"/>
-    <steppedValueSet variable="thy1ns-count" first="1" step="5" last="100"/>
-    <enumeratedValueSet variable="p-collagen-deposition">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1000"/>
-    <metric>count patches with [ pcolor = white ]</metric>
-    <metric>count patches with [ pcolor = 128 ]</metric>
-    <metric>count patches with [ pcolor = 125 ]</metric>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
     <enumeratedValueSet variable="collagen-degradation">
       <value value="0.5"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="degrader-count" first="0" step="5" last="30"/>
-    <enumeratedValueSet variable="n-collagen-deposition">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="thy1ps-count">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="thy1ns-count">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-collagen-deposition">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1000"/>
-    <metric>count patches with [ pcolor = white ]</metric>
-    <metric>count patches with [ pcolor = 128 ]</metric>
-    <metric>count patches with [ pcolor = 125 ]</metric>
-    <steppedValueSet variable="collagen-degradation" first="0" step="0.25" last="1"/>
     <enumeratedValueSet variable="degrader-count">
       <value value="10"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="thy1ps-count" first="0" step="10" last="100"/>
     <enumeratedValueSet variable="n-collagen-deposition">
       <value value="1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="thy1ps-count">
-      <value value="10"/>
+    <enumeratedValueSet variable="AS-entry-threshold">
+      <value value="15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="thy1ns-count">
       <value value="10"/>
@@ -1003,6 +965,119 @@ NetLogo 6.1.1
     <enumeratedValueSet variable="p-collagen-deposition">
       <value value="0.5"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="AS-entry-random">
+      <value value="50"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Vary-Thy1n" repetitions="5" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
+    <enumeratedValueSet variable="collagen-degradation">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="degrader-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="thy1ps-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-collagen-deposition">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AS-entry-threshold">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="thy1ns-count" first="0" step="10" last="100"/>
+    <enumeratedValueSet variable="p-collagen-deposition">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AS-entry-random">
+      <value value="50"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Vary-Degraders" repetitions="5" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
+    <enumeratedValueSet variable="collagen-degradation">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="degrader-count" first="0" step="10" last="100"/>
+    <enumeratedValueSet variable="thy1ps-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-collagen-deposition">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AS-entry-threshold">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="thy1ns-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-collagen-deposition">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AS-entry-random">
+      <value value="50"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="AS-Entry-Bivariate" repetitions="5" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
+    <enumeratedValueSet variable="collagen-degradation">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="degrader-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="thy1ps-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-collagen-deposition">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-threshold" first="0" step="3" last="30"/>
+    <enumeratedValueSet variable="thy1ns-count">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-collagen-deposition">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-random" first="0" step="10" last="100"/>
+  </experiment>
+  <experiment name="Global-Sampling" repetitions="3" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>count patches with [pcolor = 128] / count patches</metric>
+    <metric>count patches with [pcolor = 125] / count patches</metric>
+    <metric>count patches with [tissue-type = "alveolar-space" and pcolor != white] / count patches with [tissue-type = "alveolar-space"]</metric>
+    <enumeratedValueSet variable="collagen-degradation">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="degrader-count" first="0" step="10" last="30"/>
+    <steppedValueSet variable="thy1ps-count" first="0" step="10" last="30"/>
+    <enumeratedValueSet variable="n-collagen-deposition">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-threshold" first="0" step="6" last="30"/>
+    <steppedValueSet variable="thy1ns-count" first="0" step="10" last="30"/>
+    <enumeratedValueSet variable="p-collagen-deposition">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AS-entry-random" first="0" step="25" last="100"/>
   </experiment>
 </experiments>
 @#$#@#$#@

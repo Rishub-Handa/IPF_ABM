@@ -14,19 +14,37 @@ for i=1:size(data,1)
     end
 end
  
-[C, idx, ic] = unique(data_mat(:,deg_idx)); 
+[C, icx, ic] = unique(data_mat(:,deg_idx)); 
 data_agg = splitapply(@mean,data_mat(:,1:end),ic) 
+ 
+[D, idx, id] = unique(data_mat(:,deg_idx)); 
+data_agg_std = splitapply(@mean,data_mat(:,1:end),id) 
 
+n = size(icx, 1) 
+
+data_agg_conf = (1.96 .* data_agg_std) ./ sqrt(n); 
+
+figure(1) 
 hold on 
-plot(data_agg(:, deg_idx), data_agg(:, AS_idx), '-bo', 'LineWidth', 2); 
-plot(data_agg(:, deg_idx), data_agg(:, med_idx), '-o', 'LineWidth', 2); 
-plot(data_agg(:, deg_idx), data_agg(:, stiff_idx), '-ro', 'LineWidth', 2); 
+errorbar(data_agg(:, deg_idx), data_agg(:, AS_idx), data_agg_std(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg(:, deg_idx), data_agg(:, med_idx), data_agg_std(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg(:, deg_idx), data_agg(:, stiff_idx), data_agg_std(:, stiff_idx), '-ro', 'LineWidth', 2); 
 xlabel("Degraders Count"); 
 ylabel("% Patches"); 
-title("% Patches with Collagen vs. Degrader Count"); 
+title("% Patches with Collagen vs. Degrader Count w Error Bars"); 
 legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
 hold off 
 
+figure(2) 
+hold on 
+errorbar(data_agg(:, deg_idx), data_agg(:, AS_idx), data_agg_conf(:, AS_idx), '-bo', 'LineWidth', 2); 
+errorbar(data_agg(:, deg_idx), data_agg(:, med_idx), data_agg_conf(:, med_idx), '-o', 'LineWidth', 2); 
+errorbar(data_agg(:, deg_idx), data_agg(:, stiff_idx), data_agg_conf(:, stiff_idx), '-ro', 'LineWidth', 2); 
+xlabel("Degraders Count"); 
+ylabel("% Patches"); 
+title("% Patches with Collagen vs. Degrader Count w Conf Interval"); 
+legend("% Alveolar Space w Collagen", "% Medium Patches", "% Stiff Patches"); 
+hold off 
 
 
 
