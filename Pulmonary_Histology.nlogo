@@ -1,6 +1,7 @@
 breed [ thy1ps thy1p ]
 breed [ thy1ns thy1n ]
 breed [ degraders degrader ] ; degrative myofibroblasts
+breed [ prolifs prolif ]
 
 globals [
   num-AS-entry-thy1p
@@ -21,6 +22,7 @@ to setup
   setup-thy1ps
   setup-thy1ns
   setup-degraders
+  setup-prolifs
 end
 
 to setup-patches
@@ -108,12 +110,31 @@ to setup-degraders
 
 end
 
+to setup-prolifs
+
+  let num-interstitial count patches with [ tissue-type = "interstitial" ]
+
+  while [ count prolifs < prolif-count ] [
+    ask patches with [ tissue-type = "interstitial" ] [
+      if count prolifs < prolif-count [
+        if random num-interstitial < prolif-count [ sprout-prolifs 1 ]
+      ]
+    ]
+  ]
+
+  ask prolifs [ set shape "square" ]
+  ask prolifs [ set color 15 ]
+
+end
+
+
 
 to go
   if ticks >= 1000 [ stop ]  ;; stop after 1000 ticks
   move-thy1ps
   move-thy1ns
   move-degraders
+  move-prolifs
   fibcheck
   colldepon
   coll-degrade
@@ -157,6 +178,18 @@ to move-degraders
 
   ]
 end
+
+to move-prolifs
+
+  ask prolifs [
+    right random 360
+
+    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
+
+  ]
+
+end
+
 
 
 
@@ -206,12 +239,41 @@ to stiffen   ;patches change color and "stiffness" based on matrix value
     ]
 end
 
+to activate-prolifs
+  print("Here. ")
+
+  ask prolifs [
+    let total-count thy1ps-count + thy1ns-count + degrader-count
+    let rand-breed random total-count
+
+    (ifelse
+    rand-breed < thy1ps-count [
+        set breed thy1ps
+        ask thy1ps [ set shape "circle" ]
+        ask thy1ps [ set color 43]
+      ]
+    rand-breed >= thy1ps-count and rand-breed < thy1ps-count + thy1ns-count [
+        set breed thy1ns
+        ask thy1ns [ set shape "circle" ]
+        ask thy1ns [ set color 85]
+      ]
+    rand-breed >= thy1ps-count + thy1ns-count and rand-breed < thy1ps-count + thy1ns-count + degrader-count [
+        set breed degraders
+        ask degraders [ set shape "circle" ]
+        ask degraders [ set color 25 ]
+      ] )
+
+  ]
+
+
+
+end
+
 to-report check-alveolar-entry [ enter-AS? ]
   ; report true
   report false
 
 end
-
 
 
 @#$#@#$#@
@@ -251,7 +313,7 @@ thy1ps-count
 thy1ps-count
 0
 100
-10.0
+1.0
 1
 1
 NIL
@@ -266,7 +328,7 @@ thy1ns-count
 thy1ns-count
 0
 100
-10.0
+1.0
 1
 1
 NIL
@@ -439,7 +501,7 @@ degrader-count
 degrader-count
 0
 100
-10.0
+1.0
 1
 1
 NIL
@@ -540,6 +602,38 @@ count patches with [tissue-type = \"alveolar-space\" and pcolor != white]
 17
 1
 11
+
+SLIDER
+575
+55
+747
+88
+prolif-count
+prolif-count
+0
+100
+10.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+579
+103
+706
+136
+Activate Prolifs 
+activate-prolifs
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
