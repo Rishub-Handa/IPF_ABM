@@ -1,12 +1,24 @@
 breed [ thy1ps thy1p ]
 breed [ thy1ns thy1n ]
 breed [ degraders degrader ] ; degrative myofibroblasts
-breed [ prolifs prolif ]
+breed [ gen-fibs gen-fib ]
 
 globals [
+  gen-fib-count
   num-AS-entry-thy1p
   num-AS-entry-thy1n
   num-AS-entry-degrader
+  p-collagen-deposition
+  n-collagen-deposition
+  collagen-degradation
+  AS-entry-threshold
+  AS-entry-random
+
+  daily-migration-rate
+  ave-lifespan
+  dev-lifespan
+  prolif-rate
+
 
 ]
 
@@ -15,15 +27,34 @@ patches-own [
  tissue-type
 ]
 
+turtles-own [
+ age
+]
+
 to setup
   clear-all
   reset-ticks
+  setup-globals
   setup-patches
-  setup-thy1ps
-  setup-thy1ns
-  setup-degraders
-  setup-prolifs
+  ;; setup-thy1ps
+  ;; setup-thy1ns
+  ;; setup-degraders
+  setup-gen-fibs
 end
+
+to setup-globals
+  set gen-fib-count thy1ps-count + thy1ns-count + degrader-count
+  set p-collagen-deposition 0.5
+  set n-collagen-deposition 1.0
+  set collagen-degradation 0.5
+  set AS-entry-threshold 10
+  set AS-entry-random 60
+  set daily-migration-rate 0.5
+  set ave-lifespan 50
+  set dev-lifespan 10
+  set prolif-rate 0.02
+end
+
 
 to setup-patches
   ask patches [ set pcolor white ]
@@ -64,6 +95,7 @@ to setup-thy1ps             ;Thy-1 positive fibroblasts, yellow/green color
 
   ask thy1ps [ set shape "circle" ]
   ask thy1ps [ set color 43]
+  ask thy1ps [ set size 1.5 ]
 
 
 end
@@ -85,6 +117,7 @@ to setup-thy1ns             ;Thy-1 negative fibroblasts, blue
 
   ask thy1ns [ set shape "circle" ]
   ask thy1ns [ set color 85]
+  ask thy1ns [ set size 1.5 ]
 
 
 end
@@ -105,25 +138,29 @@ to setup-degraders
 
   ask degraders [ set shape "circle" ]
   ask degraders [ set color 25 ]
+  ask degraders [ set size 1.5 ]
 
 
 
 end
 
-to setup-prolifs
+to setup-gen-fibs
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
-  while [ count prolifs < prolif-count ] [
+  while [ count gen-fibs < gen-fib-count ] [
     ask patches with [ tissue-type = "interstitial" ] [
-      if count prolifs < prolif-count [
-        if random num-interstitial < prolif-count [ sprout-prolifs 1 ]
+      if count gen-fibs < gen-fib-count [
+        if random num-interstitial < gen-fib-count [ sprout-gen-fibs 1 ]
       ]
     ]
   ]
 
-  ask prolifs [ set shape "square" ]
-  ask prolifs [ set color 15 ]
+  ask gen-fibs [ set shape "square" ]
+  ask gen-fibs [ set color 15 ]
+  ask gen-fibs [ set size 1.5 ]
+
+  ask gen-fibs [ set age 0 ]
 
 end
 
@@ -134,19 +171,52 @@ to go
   move-thy1ps
   move-thy1ns
   move-degraders
-  move-prolifs
+  move-gen-fibs
   fibcheck
   colldepon
   coll-degrade
   stiffen
+  age-fib
+  prolif-fib
   tick                    ;; increase the tick counter by 1 each time through
 end
+
+to age-fib
+  ask turtles [ set age age + 1 ]
+  ask turtles [
+    if (random (dev-lifespan / 2)) + (ave-lifespan - (dev-lifespan / 2)) < age [ die ]
+  ]
+
+end
+
+to prolif-fib
+  ask turtles [
+    if random-float 1.0 < prolif-rate [ hatch 1 [ set age 0 ] ]
+  ]
+end
+
+to test
+
+  ask gen-fibs [
+    if random-float 1.0 < prolif-rate [ hatch 1 [ set age 0 ] ]
+  ]
+  ask thy1ps [
+    if random-float 1.0 < prolif-rate [ hatch-thy1ps 1 [ set age 0 ] ]
+  ]
+  ask thy1ns [
+    if random-float 1.0 < prolif-rate [ hatch-thy1ns 1 [ set age 0 ] ]
+  ]
+  ask degraders [
+    if random-float 1.0 < prolif-rate [ hatch-degraders 1 [ set age 0 ] ]
+  ]
+end
+
 
 to move-thy1ps ;agent turns to a random angle then moves forward one patch
   ask thy1ps [
     right random 360
 
-    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
+    if [pcolor] of patch-ahead 1 != white [ forward daily-migration-rate ]
 
 
   ]
@@ -157,11 +227,11 @@ to move-thy1ns
   ask thy1ns [
     right random 360
 
-    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward 1 ]
+    if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward daily-migration-rate ]
     if [tissue-type] of patch-ahead 1 = "alveolar-space" [
       if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
         print("Enter alveolar space. ")
-        forward 1
+        forward daily-migration-rate
       ]
 
     ]
@@ -174,17 +244,17 @@ to move-degraders
   ask degraders [
     right random 360
 
-    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
+    if [pcolor] of patch-ahead 1 != white [ forward daily-migration-rate ]
 
   ]
 end
 
-to move-prolifs
+to move-gen-fibs
 
-  ask prolifs [
+  ask gen-fibs [
     right random 360
 
-    if [pcolor] of patch-ahead 1 != white [ forward 1 ]
+    if [pcolor] of patch-ahead 1 != white [ forward daily-migration-rate ]
 
   ]
 
@@ -239,12 +309,11 @@ to stiffen   ;patches change color and "stiffness" based on matrix value
     ]
 end
 
-to activate-prolifs
+to activate-gen-fibs
   print("Here. ")
 
-  ask prolifs [
-    let total-count thy1ps-count + thy1ns-count + degrader-count
-    let rand-breed random total-count
+  ask gen-fibs [
+    let rand-breed random gen-fib-count
 
     (ifelse
     rand-breed < thy1ps-count [
@@ -274,7 +343,6 @@ to-report check-alveolar-entry [ enter-AS? ]
   report false
 
 end
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -313,22 +381,7 @@ thy1ps-count
 thy1ps-count
 0
 100
-1.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-197
-54
-369
-87
-thy1ns-count
-thy1ns-count
-0
-100
-1.0
+18.0
 1
 1
 NIL
@@ -336,39 +389,24 @@ HORIZONTAL
 
 SLIDER
 13
-99
+109
 185
-132
-p-collagen-deposition
-p-collagen-deposition
+142
+thy1ns-count
+thy1ns-count
 0
-2
-0.5
-0.25
+100
+15.0
 1
-NIL
-HORIZONTAL
-
-SLIDER
-199
-101
-371
-134
-n-collagen-deposition
-n-collagen-deposition
-0
-2
-1.0
-0.25
 1
 NIL
 HORIZONTAL
 
 BUTTON
-68
-16
-132
-49
+17
+15
+81
+48
 Setup
 setup
 NIL
@@ -382,10 +420,10 @@ NIL
 1
 
 BUTTON
-249
-17
-312
-50
+92
+15
+155
+48
 Go
 go
 T
@@ -399,10 +437,10 @@ NIL
 1
 
 MONITOR
-19
-146
-86
-191
+217
+53
+288
+98
 Thy 1 Pos
 count thy1ps
 17
@@ -410,10 +448,10 @@ count thy1ps
 11
 
 MONITOR
-103
-146
-173
-191
+217
+107
+287
+152
 Thy 1 Neg
 count thy1ns
 17
@@ -421,10 +459,10 @@ count thy1ns
 11
 
 MONITOR
-16
-204
-99
-249
+443
+232
+526
+277
 Soft Patches
 count patches with [pcolor = white or pcolor = 95]
 17
@@ -432,10 +470,10 @@ count patches with [pcolor = white or pcolor = 95]
 11
 
 MONITOR
-112
-204
-214
-249
+539
+232
+641
+277
 Medium Patches
 count patches with [pcolor = 128]
 17
@@ -443,10 +481,10 @@ count patches with [pcolor = 128]
 11
 
 MONITOR
-229
-204
-312
-249
+656
+232
+739
+277
 Stiff Patches
 count patches with [pcolor = 125]
 17
@@ -454,10 +492,10 @@ count patches with [pcolor = 125]
 11
 
 PLOT
-15
-372
-310
-553
+12
+218
+307
+399
 Fibroblast Count over Time
 Time
 Number of Fibroblasts
@@ -473,10 +511,10 @@ PENS
 "Thy 1 negative" 1.0 0 -16777216 true "" "plot count thy1ns"
 
 PLOT
-390
-246
-692
-446
+436
+18
+738
+218
 Surface Stiffness over Time
 Time
 Different Stiffness Patches
@@ -493,92 +531,75 @@ PENS
 "Stiff" 1.0 0 -2674135 true "" "plot count patches with [pcolor = 125]"
 
 SLIDER
-390
-54
-562
-87
+14
+159
+186
+192
 degrader-count
 degrader-count
 0
 100
-1.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-391
-101
-562
-134
-collagen-degradation
-collagen-degradation
-0
-1
-0.5
-0.01
-1
-NIL
-HORIZONTAL
-
-MONITOR
-191
-142
-272
-187
-Degraders 
-count degraders
-17
-1
-11
-
-SLIDER
-389
-151
-564
-184
-AS-entry-threshold
-AS-entry-threshold
-0
-30
 10.0
 1
 1
 NIL
 HORIZONTAL
 
-SLIDER
-389
-195
-561
-228
-AS-entry-random
-AS-entry-random
-0
-100
-60.0
+MONITOR
+217
+157
+298
+202
+Degraders 
+count degraders
+17
 1
-1
-NIL
-HORIZONTAL
+11
 
 MONITOR
-16
-315
-233
-360
-% Alveolar Patches With Collagen 
+557
+489
+668
+534
+% AV w Collagen 
 count patches with [tissue-type = \"alveolar-space\" and pcolor != white] / count patches with [tissue-type = \"alveolar-space\"]
 17
 1
 11
 
+MONITOR
+445
+490
+544
+535
+AV w Collagen
+count patches with [tissue-type = \"alveolar-space\" and pcolor != white]
+17
+1
+11
+
+BUTTON
+166
+14
+307
+47
+Activate Gen Fibs 
+activate-gen-fibs
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 PLOT
-391
-461
-689
-643
+444
+295
+742
+477
 Alveolar Patches with Collagen over Time 
 Time 
 Patches 
@@ -591,49 +612,6 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot count patches with [tissue-type = \"alveolar-space\" and pcolor != white]"
-
-MONITOR
-17
-258
-198
-303
-Alveolar Patches with Collagen
-count patches with [tissue-type = \"alveolar-space\" and pcolor != white]
-17
-1
-11
-
-SLIDER
-575
-55
-747
-88
-prolif-count
-prolif-count
-0
-100
-10.0
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-579
-103
-706
-136
-Activate Prolifs 
-activate-prolifs
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
