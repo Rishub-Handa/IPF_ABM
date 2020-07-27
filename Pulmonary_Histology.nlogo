@@ -1,18 +1,15 @@
-breed [ thy1ps thy1p ]
-breed [ thy1ns thy1n ]
-breed [ degraders degrader ] ; degrative myofibroblasts
-breed [ gen-fibs gen-fib ]
+breed [ thy1ps thy1p ] ; Thy1 positive - Blue
+breed [ thy1ns thy1n ] ; Thy1 negative - Green
+breed [ degraders degrader ] ; degrative myofibroblasts - Orange
+breed [ gen-fibs gen-fib ] ; Generic Fibroblasts prior to activation - Red
 
 globals [
-  gen-fib-count
-  num-AS-entry-thy1p
-  num-AS-entry-thy1n
-  num-AS-entry-degrader
-  p-collagen-deposition
-  n-collagen-deposition
-  collagen-degradation
-  AS-entry-threshold
-  AS-entry-random
+  gen-fib-count ; Total number of generic fibroblasts in the beginning
+  p-collagen-deposition ; Rate of collagen dep. for thy1p
+  n-collagen-deposition ; Rate of collagen dep. for thy1n
+  collagen-degradation ; Rate of collagen degradation
+  AS-entry-threshold ; Threshold to enter alveolar space
+  AS-entry-random ; Stochastic factor to enter alveolar space
 
   daily-migration-rate
   ave-lifespan
@@ -36,10 +33,7 @@ to setup
   reset-ticks
   setup-globals
   setup-patches
-  ;; setup-thy1ps
-  ;; setup-thy1ns
-  ;; setup-degraders
-  setup-gen-fibs
+  setup-gen-fibs ; Start by setting up all the generic fibroblasts without any activation event
 end
 
 to setup-globals
@@ -57,6 +51,9 @@ end
 
 
 to setup-patches
+
+  ; Import the picture of pulmonary tissue
+
   ask patches [ set pcolor white ]
   import-pcolors "imgs/Mouse_Alveoli2.jpg"
   ask patches [
@@ -79,9 +76,9 @@ to setup-patches
 
 end
 
-to setup-thy1ps             ;Thy-1 positive fibroblasts, yellow/green color
 
-  set num-AS-entry-thy1p 0
+; DEPRECATED: Use this to start the board with a random number of thy1ps in interstitial space
+to setup-thy1ps
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -100,9 +97,8 @@ to setup-thy1ps             ;Thy-1 positive fibroblasts, yellow/green color
 
 end
 
-to setup-thy1ns             ;Thy-1 negative fibroblasts, blue
-
-  set num-AS-entry-thy1n 0
+; DEPRECATED: Use this to start the board with a random number of thy1ns in interstitial space
+to setup-thy1ns
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -122,9 +118,8 @@ to setup-thy1ns             ;Thy-1 negative fibroblasts, blue
 
 end
 
+; DEPRECATED: Use this to start the board with a random number of degraders in interstitial space
 to setup-degraders
-
-  set num-AS-entry-degrader 0
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
@@ -144,10 +139,12 @@ to setup-degraders
 
 end
 
+; Start the board with all the fiborblasts in a generic, unactivated state
 to setup-gen-fibs
 
   let num-interstitial count patches with [ tissue-type = "interstitial" ]
 
+  ; Randomly sprout fibroblasts on interstitial space
   while [ count gen-fibs < gen-fib-count ] [
     ask patches with [ tissue-type = "interstitial" ] [
       if count gen-fibs < gen-fib-count [
@@ -181,38 +178,23 @@ to go
   tick                    ;; increase the tick counter by 1 each time through
 end
 
+; Increase the age with every tick
 to age-fib
   ask turtles [ set age age + 1 ]
   ask turtles [
-    if (random (dev-lifespan / 2)) + (ave-lifespan - (dev-lifespan / 2)) < age [ die ]
+    if (random (dev-lifespan / 2)) + (ave-lifespan - (dev-lifespan / 2)) < age [ die ] ; If they are within the average lifespan range, with a stochastic factor, they die
   ]
 
 end
 
+; Randomly proliferate at some point in their life
 to prolif-fib
   ask turtles [
     if random-float 1.0 < prolif-rate [ hatch 1 [ set age 0 ] ]
   ]
 end
 
-to test
-
-  ask gen-fibs [
-    if random-float 1.0 < prolif-rate [ hatch 1 [ set age 0 ] ]
-  ]
-  ask thy1ps [
-    if random-float 1.0 < prolif-rate [ hatch-thy1ps 1 [ set age 0 ] ]
-  ]
-  ask thy1ns [
-    if random-float 1.0 < prolif-rate [ hatch-thy1ns 1 [ set age 0 ] ]
-  ]
-  ask degraders [
-    if random-float 1.0 < prolif-rate [ hatch-degraders 1 [ set age 0 ] ]
-  ]
-end
-
-
-to move-thy1ps ;agent turns to a random angle then moves forward one patch
+to move-thy1ps ; agent turns to a random angle then moves forward one patch
   ask thy1ps [
     right random 360
 
@@ -222,11 +204,12 @@ to move-thy1ps ;agent turns to a random angle then moves forward one patch
   ]
 end
 
-to move-thy1ns
+to move-thy1ns ; agent turns to a random angle then moves forward one patch
 
   ask thy1ns [
     right random 360
 
+    ; Only thy1 negative fibs can enter the alveolar space
     if [tissue-type] of patch-ahead 1 = "interstitial" and [tissue-type] of patch-ahead 2 = "interstitial" and [pcolor] of patch-ahead 1 != white and [pcolor] of patch-ahead 2 != white [ forward daily-migration-rate ]
     if [tissue-type] of patch-ahead 1 = "alveolar-space" [
       if [matrix] of patch-at 1 0 + [matrix] of patch-at -1 0 + [matrix] of patch-at 0 1 + [matrix] of patch-at 0 -1 + [matrix] of patch-here >= AS-entry-threshold and random 100 < AS-entry-random [
@@ -239,7 +222,7 @@ to move-thy1ns
   ]
 end
 
-to move-degraders
+to move-degraders ; agent turns to a random angle then moves forward one patch
 
   ask degraders [
     right random 360
@@ -249,7 +232,7 @@ to move-degraders
   ]
 end
 
-to move-gen-fibs
+to move-gen-fibs ; agent turns to a random angle then moves forward one patch
 
   ask gen-fibs [
     right random 360
@@ -287,7 +270,7 @@ to colldepon
   ]
 end
 
-to coll-degrade
+to coll-degrade             ; Degrader fibs remove some matrix
   ask degraders [
     ask patch-ahead 1 [
       set matrix matrix - collagen-degradation
@@ -309,8 +292,8 @@ to stiffen   ;patches change color and "stiffness" based on matrix value
     ]
 end
 
+; Use this to activate all fibroblasts given a trigger event
 to activate-gen-fibs
-  print("Here. ")
 
   ask gen-fibs [
     let rand-breed random gen-fib-count
@@ -335,12 +318,6 @@ to activate-gen-fibs
   ]
 
 
-
-end
-
-to-report check-alveolar-entry [ enter-AS? ]
-  ; report true
-  report false
 
 end
 
@@ -381,7 +358,7 @@ thy1ps-count
 thy1ps-count
 0
 100
-18.0
+1.0
 1
 1
 NIL
@@ -396,7 +373,7 @@ thy1ns-count
 thy1ns-count
 0
 100
-15.0
+4.0
 1
 1
 NIL
@@ -539,7 +516,7 @@ degrader-count
 degrader-count
 0
 100
-10.0
+23.0
 1
 1
 NIL
